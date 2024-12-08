@@ -1,0 +1,103 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+<h1 class="text-center" style="padding-top: 2rem; font-weight: bold">
+  Prediksi Harga Komoditas Pangan
+</h1>
+
+<!-- Pilihan Komoditas -->
+<div class="mb-3 px-10" style="margin-top: 3rem">
+  <form action="/" method="post">
+    <label for="komoditas" class="form-label">Pilih Komoditas</label>
+    <select
+      id="komoditas"
+      class="form-select"
+      name="komoditas"
+      aria-label="Pilih Komoditas"
+      style="width: 15rem; border-color: orange"
+    >
+      <option selected>Pilih komoditas</option>
+      <option value="Beras Premium">Beras Premium</option>
+      <option value="Beras Medium">Beras Medium</option>
+      <option value="Kedelai Biji Kering (Impor)">Kedelai Biji Kering (Impor)</option>
+      <option value="Bawang Merah">Bawang Merah</option>
+      <option value="Bawang Putih Bonggol">Bawang Putih Bonggol</option>
+      <option value="Cabai Merah Keriting">Cabai Merah Keriting</option>
+      <option value="Cabai Rawit Merah">Cabai Rawit Merah</option>
+      <option value="Daging Sapi Murni">Daging Sapi Murni</option>
+      <option value="Daging Ayam Ras">Daging Ayam Ras</option>
+      <option value="Telur Ayam Ras">Telur Ayam Ras</option>
+      <option value="Gula Pasir/Konsumsi">Gula Pasir/Konsumsi</option>
+      <option value="Minyak Goreng Kms. Sederhana">Minyak Goreng Kms. Sederhana</option>
+      <option value="Tepung Terigu (Curah)">Tepung Terigu (Curah)</option>
+      <option value="Minyak Goreng Curah">Minyak Goreng Curah</option>
+      <option value="Cabai Merah Besar">Cabai Merah Besar</option>
+      <option value="Jagung Pipilan Kering">Jagung Pipilan Kering</option>
+      <option value="Kentang">Kentang</option>
+      <option value="Tomat">Tomat</option>
+    </select>
+
+    <label for="hari" class="form-label mt-3">Jumlah Prediksi Hari</label>
+    <select
+      id="hari"
+      class="form-select"
+      name="hari"
+      aria-label="Jumlah Hari"
+      style="width: 15rem; border-color: orange"
+    >
+      <option selected>Pilih jumlah hari</option>
+      <option value="1">1 hari</option>
+      <option value="2">2 hari</option>
+      <option value="3">3 hari</option>
+      <option value="4">4 hari</option>
+      <option value="5">5 hari</option>
+      <option value="6">6 hari</option>
+      <option value="7">7 hari</option>
+    </select>
+
+    <button class="btn btn-info mt-3 lift" type="submit" style="width: 8rem">
+      Predict
+    </button>
+  </form>
+  
+  {% if error %}
+  <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</div>
+
+<!-- Prediksi Hasil -->
+<div class="px-10">
+  <div class="card" style="background-color: rgba(249, 253, 0, 0.4)">
+    <div class="card-body">
+      <h3 class="card-title" style="font-weight: bold">Hasil Prediksi</h3>
+      <table class="table table-bordered" style="font-size: large">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Komoditas</th>
+            <th>Prediksi Harga</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if prediction_table %}
+            {% for row in prediction_table %}
+              <tr>
+                <td>{{ row['Tanggal'] }}</td>
+                <td>{{ row['Komoditas'] }}</td>
+                <td>{{ row['Prediksi Harga'] }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="3">
+                Belum ada prediksi. Pilih jumlah hari dan klik "Predict".
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

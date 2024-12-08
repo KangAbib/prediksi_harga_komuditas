@@ -1,0 +1,118 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+<h1 class="text-center" style="padding-top: 2rem; font-weight: bold">
+  Data Harga Komoditas
+</h1>
+
+<!-- Form untuk memilih komoditas -->
+<div class="mb-3 px-10" style="margin-top: 3rem">
+  <form action="/data" method="get">
+    <label for="komoditas" class="form-label">Pilih Komoditas</label>
+    <select
+      id="komoditas"
+      class="form-select"
+      name="komoditas"
+      aria-label="Pilih Komoditas"
+      style="width: 15rem; border-color: orange"
+    >
+      <option selected>Pilih Komoditas</option>
+      <option value="Beras Premium">Beras Premium</option>
+      <option value="Beras Medium">Beras Medium</option>
+      <option value="Kedelai Biji Kering (Impor)">Kedelai Biji Kering (Impor)</option>
+      <option value="Bawang Merah">Bawang Merah</option>
+      <option value="Bawang Putih Bonggol">Bawang Putih Bonggol</option>
+      <option value="Cabai Merah Keriting">Cabai Merah Keriting</option>
+      <option value="Cabai Rawit Merah">Cabai Rawit Merah</option>
+      <option value="Daging Sapi Murni">Daging Sapi Murni</option>
+      <option value="Daging Ayam Ras">Daging Ayam Ras</option>
+      <option value="Telur Ayam Ras">Telur Ayam Ras</option>
+      <option value="Gula Pasir/Konsumsi">Gula Pasir/Konsumsi</option>
+      <option value="Minyak Goreng Kms. Sederhana">Minyak Goreng Kms. Sederhana</option>
+      <option value="Tepung Terigu (Curah)">Tepung Terigu (Curah)</option>
+      <option value="Minyak Goreng Curah">Minyak Goreng Curah</option>
+      <option value="Cabai Merah Besar">Cabai Merah Besar</option>
+      <option value="Jagung Pipilan Kering">Jagung Pipilan Kering</option>
+      <option value="Kentang">Kentang</option>
+      <option value="Tomat">Tomat</option>
+    </select>
+
+    <button class="btn btn-info mt-3 lift" type="submit" style="width: 8rem">
+      Tampilkan Data
+    </button>
+  </form>
+</div>
+
+<div class="px-10">
+  <div class="card" style="background-color: rgba(249, 253, 0, 0.4)">
+    <div class="card-body">
+      <!-- Tampilkan data berdasarkan komoditas yang dipilih -->
+      {% if dataset %}
+        <h3 class="card-title" style="font-weight: bold">Data Harga: {{ komoditas }}</h3>
+        <table class="table table-striped" style="font-size: large">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>{{ komoditas }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in dataset %}
+            <tr>
+              <td>{{ row['Tanggal'] }}</td>
+              <td>{{ row[komoditas] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if page > 1 %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page - 1 }}&komoditas={{ komoditas }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% endif %}
+            {% for p in page_range %}
+              {% if p == '...' %}
+              <li class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+              {% else %}
+              <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="?page={{ p }}&komoditas={{ komoditas }}">{{ p }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+            {% if page < total_pages %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page + 1 }}&komoditas={{ komoditas }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% else %}
+        <p>Silakan pilih komoditas untuk menampilkan data.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
