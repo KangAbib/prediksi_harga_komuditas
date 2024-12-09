@@ -4,7 +4,9 @@ import pandas as pd
 import numpy as np
 from math import ceil
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 
@@ -34,28 +36,39 @@ def predict():
         # Load data
         df = pd.read_csv('DataHargaPangan.csv')
         df['Tanggal'] = pd.to_datetime(df['Tanggal'], dayfirst=True)
+        df = df.dropna()
 
         # Pastikan komoditas ada dalam dataset
         if komoditas not in df.columns:
             return render_template("index.html", error="Error: Komoditas tidak ditemukan.", prediction_table=None)
 
-        # Ambil data komoditas yang dipilih
-        data = df[[komoditas]]
+        # Normalisasi hanya pada kolom komoditas yang dipilih
         scaler = MinMaxScaler()
+        y = scaler.fit_transform(df[[komoditas]])  # Fit hanya pada kolom komoditas yang dipilih
 
-        # Normalisasi data
-        normalized_data = scaler.fit_transform(data)
-        poly = PolynomialFeatures(degree=7)
+        # Menyiapkan data untuk regresi
+        df['Tanggal_Num'] = (df['Tanggal'] - df['Tanggal'].min()).dt.days  # Konversi tanggal ke numerik
+        X = df[['Tanggal_Num']]
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Model regresi polinomial
+        degree = 7  # Tingkat polinomial
+        poly = PolynomialFeatures(degree=degree)
+        X_train_poly = poly.fit_transform(X_train)
+        X_test_poly = poly.transform(X_test)
+
+        # Melatih model
+        model = LinearRegression()
+        model.fit(X_train_poly, y_train)
 
         # Prediksi untuk masa depan
-        last_date = df['Tanggal'].max()
-        future_dates = pd.date_range(start=last_date + pd.Timedelta(days=1), periods=hari)
-        future_dates_num = np.arange(1, hari + 1).reshape(-1, 1)
+        future_dates = pd.date_range(start=df['Tanggal'].max() + pd.Timedelta(days=1), periods=hari, freq='D')
+        future_dates_num = (future_dates - df['Tanggal'].min()).days.values.reshape(-1, 1)
         future_dates_poly = poly.fit_transform(future_dates_num)
-
         predictions = model.predict(future_dates_poly)
 
-        # Invers transform hasil prediksi
+        # Inverse transform hasil prediksi
         predictions_rescaled = scaler.inverse_transform(predictions.reshape(-1, 1)).flatten()
 
         # Hasil prediksi
@@ -67,6 +80,7 @@ def predict():
 
         prediction_df['Tanggal'] = prediction_df['Tanggal'].dt.strftime('%d-%m-%Y')
         prediction_df['Prediksi Harga'] = prediction_df['Prediksi Harga'].astype(int)
+
 
         return render_template("index.html", prediction_table=prediction_df.to_dict(orient='records'), error=None)
 

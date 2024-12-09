@@ -1,5 +1,4 @@
-{% extends 'base.html' %} 
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h1 class="text-center" style="padding-top: 2rem; font-weight: bold">
   Prediksi Harga Komoditas Pangan
@@ -19,7 +18,9 @@
       <option selected>Pilih komoditas</option>
       <option value="Beras Premium">Beras Premium</option>
       <option value="Beras Medium">Beras Medium</option>
-      <option value="Kedelai Biji Kering (Impor)">Kedelai Biji Kering (Impor)</option>
+      <option value="Kedelai Biji Kering (Impor)">
+        Kedelai Biji Kering (Impor)
+      </option>
       <option value="Bawang Merah">Bawang Merah</option>
       <option value="Bawang Putih Bonggol">Bawang Putih Bonggol</option>
       <option value="Cabai Merah Keriting">Cabai Merah Keriting</option>
@@ -28,7 +29,9 @@
       <option value="Daging Ayam Ras">Daging Ayam Ras</option>
       <option value="Telur Ayam Ras">Telur Ayam Ras</option>
       <option value="Gula Pasir/Konsumsi">Gula Pasir/Konsumsi</option>
-      <option value="Minyak Goreng Kms. Sederhana">Minyak Goreng Kms. Sederhana</option>
+      <option value="Minyak Goreng Kms. Sederhana">
+        Minyak Goreng Kms. Sederhana
+      </option>
       <option value="Tepung Terigu (Curah)">Tepung Terigu (Curah)</option>
       <option value="Minyak Goreng Curah">Minyak Goreng Curah</option>
       <option value="Cabai Merah Besar">Cabai Merah Besar</option>
@@ -59,7 +62,7 @@
       Predict
     </button>
   </form>
-  
+
   {% if error %}
   <div class="alert alert-danger mt-3">{{ error }}</div>
   {% endif %}
@@ -79,20 +82,19 @@
           </tr>
         </thead>
         <tbody>
-          {% if prediction_table %}
-            {% for row in prediction_table %}
-              <tr>
-                <td>{{ row['Tanggal'] }}</td>
-                <td>{{ row['Komoditas'] }}</td>
-                <td>{{ row['Prediksi Harga'] }}</td>
-              </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="3">
-                Belum ada prediksi. Pilih jumlah hari dan klik "Predict".
-              </td>
-            </tr>
+          {% if prediction_table %} {% for row in prediction_table %}
+          <tr>
+            <td>{{ row['Tanggal'] }}</td>
+            <td>{{ row['Komoditas'] }}</td>
+            <td>{{ row['Prediksi Harga'] }}</td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td colspan="3">
+              Belum ada prediksi. Pilih komoditas dan jumlah hari, lalu klik
+              "Predict".
+            </td>
+          </tr>
           {% endif %}
         </tbody>
       </table>
