@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1 class="text-center" style="padding-top: 2rem; font-weight: bold">
+  Regresi Polinomial
+</h1>
+
+<!-- Prediksi Hasil -->
+<div class="px-10 row">
+  <div
+    class="card col"
+    style="background-color: rgba(249, 253, 0, 0.4); margin-right: 10px"
+  >
+    <div class="card-body" style="font-weight: bold">
+      <h3 class="card-title" style="font-weight: bold">Persamaan Model</h3>
+      <h4 style="font-weight: bold">Koefisien:</h4>
+      <div>
+        {% for coef in koefisien %}
+        <p>{{ coef }}</p>
+        {% endfor %}
+      </div>
+      <h4 style="font-weight: bold">Intersept:</h4>
+      <p>{{ intercept }}</p>
+      <h4 style="font-weight: bold">Persamaan Regresi Polinomial:</h4>
+      <p>{{ persamaan }}</p>
+    </div>
+  </div>
+  <div
+    class="card col"
+    style="
+      background-color: rgba(249, 253, 0, 0.4);
+      margin-left: 10px;
+      height: 200px;
+    "
+  >
+    <div class="card-body" style="font-weight: bold">
+      <h3 class="card-title" style="font-weight: bold">Evaluasi Model</h3>
+      <p>R-squared = {{ r2 }}%</p>
+      <p>Mean Squared Error = {{ mse }}</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

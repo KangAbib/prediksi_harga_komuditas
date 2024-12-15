@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{url_for('static',filename='css/theme.bundle.css')}}">
     
 
-    <title>Prediksi Harga Beras Premium</title>
+    <title>Prediksi Harga Komoditas</title>
   </head>
     <body>
       <!-- NAVBAR -->
@@ -32,6 +32,11 @@
               <li class="nav-item ">
                 <a class="nav-link" id="navbarPages"  href="{{url_for('data')}}" aria-haspopup="true" aria-expanded="false">
                   Dataset
+                </a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" id="navbarPages"  href="{{url_for('model')}}" aria-haspopup="true" aria-expanded="false">
+                  Model
                 </a>
               </li>
             </ul>

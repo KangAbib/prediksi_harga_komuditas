@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 app = Flask(__name__)
 
@@ -81,7 +82,6 @@ def predict():
         prediction_df['Tanggal'] = prediction_df['Tanggal'].dt.strftime('%d-%m-%Y')
         prediction_df['Prediksi Harga'] = prediction_df['Prediksi Harga'].astype(int)
 
-
         return render_template("index.html", prediction_table=prediction_df.to_dict(orient='records'), error=None)
 
     except Exception as e:
@@ -130,6 +130,73 @@ def data():
 
     return render_template('data.html', dataset=page_data.to_dict(orient='records'),
                            page=page, total_pages=total_pages, page_range=page_range, komoditas=komoditas)
+
+@app.route('/model')
+def model():
+    try:
+        # Load data
+        df = pd.read_csv('DataHargaPangan.csv')
+        df['Tanggal'] = pd.to_datetime(df['Tanggal'], dayfirst=True)
+        df = df.dropna()
+
+        data = df[["Beras Premium",	"Beras Medium", "Kedelai Biji Kering (Impor)",	"Bawang Merah",	"Bawang Putih Bonggol",	"Cabai Merah Keriting",	"Cabai Rawit Merah",	"Daging Sapi Murni",	"Daging Ayam Ras",	"Telur Ayam Ras", "Gula Pasir/Konsumsi",	"Minyak Goreng Kms. Sederhana",	"Tepung Terigu (Curah)",	"Minyak Goreng Curah",	"Cabai Merah Besar",	"Jagung Pipilan Kering",	"Kentang",	"Tomat"]]
+
+        # Inisialisasi scaler
+        scaler = MinMaxScaler()
+
+        # Normalisasi data
+        normalized_data = scaler.fit_transform(data)
+
+        # Konversi kembali ke DataFrame agar mudah dibaca
+        normalized_df = pd.DataFrame(normalized_data, columns=["Beras Premium",	"Beras Medium", "Kedelai Biji Kering (Impor)",	"Bawang Merah",	"Bawang Putih Bonggol",	"Cabai Merah Keriting",	"Cabai Rawit Merah",	"Daging Sapi Murni",	"Daging Ayam Ras",	"Telur Ayam Ras", "Gula Pasir/Konsumsi",	"Minyak Goreng Kms. Sederhana",	"Tepung Terigu (Curah)",	"Minyak Goreng Curah",	"Cabai Merah Besar",	"Jagung Pipilan Kering",	"Kentang",	"Tomat"])
+
+        # Menyiapkan data untuk regresi
+        df['Tanggal'] = pd.to_datetime(df['Tanggal'], dayfirst=True)
+        df['Tanggal_Num'] = (df['Tanggal'] - df['Tanggal'].min()).dt.days  # Konversi tanggal ke numerik
+        X = df[['Tanggal_Num']]
+        y = normalized_df['Beras Premium']
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Model regresi polinomial
+        degree = 7  # Tingkat polinomial
+        poly = PolynomialFeatures(degree=degree)
+        X_train_poly = poly.fit_transform(X_train)
+        X_test_poly = poly.transform(X_test)
+
+        # Melatih model
+        model = LinearRegression()
+        model.fit(X_train_poly, y_train)
+
+        # Evaluasi model pada testing set
+        y_pred = model.predict(X_test_poly)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        r2_percentage = round(r2*100, 2)
+
+        coefficients = model.coef_
+        intercept = model.intercept_
+
+        # Menyimpan koefisien dalam format string
+        formatted_coefficients = [f"x^{i}: {coef}" for i, coef in enumerate(coefficients)]
+
+        # Format koefisien menjadi persamaan
+        formatted_terms = []
+        for i, coef in enumerate(coefficients):
+            if coef != 0:  # Abaikan koefisien 0
+                formatted_coef = f"({coef:.4e})".replace('e', '×10^').replace('+', '')  # Format e-notation
+                term = f"{formatted_coef}x^{i}" if i > 0 else f"{formatted_coef}"  # Tambahkan x^i jika i > 0
+                formatted_terms.append(term)
+
+        # Gabungkan semua term menjadi persamaan
+        equation = f"y = {intercept:.4f} + " + " + ".join(formatted_terms)
+        inter = f"{intercept:.4f}"
+
+        return render_template("model.html", persamaan = equation, koefisien = formatted_coefficients, intercept = inter, mse = mse, r2 = r2_percentage, error=None)
+
+    except Exception as e:
+        return render_template("model.html", error=f"Error: {str(e)}", prediction_table=None)
 
 if __name__ == '__main__':
     app.run(debug=True)
